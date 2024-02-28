@@ -53,6 +53,7 @@ const handleRegisterUser = async (req, res, next) => {
       password: hash,
       isBanned: false,
       role: role.toLowerCase() || "manager",
+      createdAt: new Date(),
     };
 
     const user = await usersCollection.insertOne(newUser);
@@ -242,6 +243,7 @@ const handleEditUserRole = async (req, res, next) => {
       {
         $set: {
           role: trimmedRole,
+          updatedAt: new Date(),
         },
       },
       { returnDocument: "after" }
@@ -298,6 +300,7 @@ const handleChangePassword = async (req, res, next) => {
       {
         $set: {
           password: hash,
+          updatedAt: new Date(),
         },
       },
       { returnDocument: "after" }
@@ -312,6 +315,30 @@ const handleChangePassword = async (req, res, next) => {
   }
 };
 
+// delete user
+const handleDeleteUserById = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    if (!ObjectId.isValid(id)) {
+      throw createError(400, "invalid user id");
+    }
+
+    const exists = await usersCollection.findOne({ _id: new ObjectId(id) });
+    if (!exists) {
+      throw createError(404, "user not found");
+    }
+
+    await usersCollection.deleteOne({ _id: new ObjectId(id) });
+
+    res.status(200).send({
+      success: true,
+      message: "user deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   handleRegisterUser,
   handleLoginUser,
@@ -319,4 +346,5 @@ export {
   handleGetUserById,
   handleEditUserRole,
   handleChangePassword,
+  handleDeleteUserById,
 };

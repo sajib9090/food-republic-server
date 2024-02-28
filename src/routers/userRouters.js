@@ -1,6 +1,7 @@
 import express from "express";
 import {
   handleChangePassword,
+  handleDeleteUserById,
   handleEditUserRole,
   handleGetUserById,
   handleGetUsers,
@@ -28,5 +29,7 @@ userRouter.patch(
   isAdminOrChairman,
   handleChangePassword
 );
+
+userRouter.delete("/delete/:id", handleDeleteUserById);
 
 export default userRouter;

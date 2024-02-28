@@ -5,6 +5,7 @@ import morgan from "morgan";
 import createError from "http-errors";
 import { rateLimit } from "express-rate-limit";
 import userRouter from "./routers/userRouters.js";
+import categoryRouter from "./routers/categoryRouters.js";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v2/user", userRouter);
+app.use("/api/v2/category", categoryRouter);
 
 app.get("/", (req, res) => {
   res.status(200).send({ success: true, message: "Server is running" });
