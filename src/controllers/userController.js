@@ -1,11 +1,10 @@
 import createError from "http-errors";
 import bcrypt from "bcryptjs";
-import { client } from "../config/db.js";
 import createJWT from "../helper/createJWT.js";
 import { accessTokenSecret, refreshTokenSecret } from "../../secrets.js";
 import { ObjectId } from "mongodb";
 
-const usersCollection = client.db("Food").collection("users");
+import { usersCollection } from "../collections/collections.js";
 
 const handleRegisterUser = async (req, res, next) => {
   const { username, password, role } = req.body;
@@ -15,10 +14,6 @@ const handleRegisterUser = async (req, res, next) => {
     }
 
     const trimmedUserName = username.toLowerCase().replace(/\s/g, "");
-
-    if (trimmedUserName.length < 3) {
-      throw createError(400, "username must be at least 3 characters long");
-    }
 
     if (typeof trimmedUserName !== "string") {
       throw createError(400, "username must be a string");

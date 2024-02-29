@@ -6,6 +6,12 @@ import createError from "http-errors";
 import { rateLimit } from "express-rate-limit";
 import userRouter from "./routers/userRouters.js";
 import categoryRouter from "./routers/categoryRouters.js";
+import tableRouter from "./routers/tableRouters.js";
+import staffRouter from "./routers/staffRouters.js";
+import menuItemRouter from "./routers/menuItemRouters.js";
+import memberRouter from "./routers/memberRouters.js";
+import expenseRouter from "./routers/expenseRouters.js";
+import soldInvoicesRouter from "./routers/soldInvoicesRouters.js";
 
 const app = express();
 
@@ -35,6 +41,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v2/user", userRouter);
 app.use("/api/v2/category", categoryRouter);
+app.use("/api/v2/table", tableRouter);
+app.use("/api/v2/staff", staffRouter);
+app.use("/api/v2/menu-item", menuItemRouter);
+app.use("/api/v2/member", memberRouter);
+app.use("/api/v2/expense", expenseRouter);
+app.use("/api/v2/sold-invoice", soldInvoicesRouter);
 
 app.get("/", (req, res) => {
   res.status(200).send({ success: true, message: "Server is running" });

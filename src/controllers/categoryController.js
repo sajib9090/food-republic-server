@@ -1,8 +1,6 @@
 import createError from "http-errors";
-import { client } from "../config/db.js";
 import { ObjectId } from "mongodb";
-
-const categoryCollection = client.db("Food").collection("categories");
+import { categoryCollection } from "../collections/collections.js";
 
 const handleCreateCategory = async (req, res, next) => {
   const { category } = req.body;

@@ -12,23 +12,13 @@ import { isAdminOrChairman, isLoggedIn } from "../middlewares/auth.js";
 
 const userRouter = express.Router();
 
-userRouter.post("/register", isLoggedIn, isAdminOrChairman, handleRegisterUser);
+userRouter.post("/register", handleRegisterUser);
 userRouter.post("/login", handleLoginUser);
 userRouter.get("/users", handleGetUsers);
 userRouter.get("/:id", handleGetUserById);
-userRouter.patch(
-  "/edit/role/:id",
-  isLoggedIn,
-  isAdminOrChairman,
-  handleEditUserRole
-);
+userRouter.patch("/edit/role/:id", handleEditUserRole);
 
-userRouter.patch(
-  "/change/password/:id",
-  isLoggedIn,
-  isAdminOrChairman,
-  handleChangePassword
-);
+userRouter.patch("/change/password/:id", handleChangePassword);
 
 userRouter.delete("/delete/:id", handleDeleteUserById);
 
