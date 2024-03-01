@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import createJWT from "../helper/createJWT.js";
 import { accessTokenSecret, refreshTokenSecret } from "../../secrets.js";
 import { ObjectId } from "mongodb";
+import jwt from "jsonwebtoken";
 
 import { usersCollection } from "../collections/collections.js";
 
@@ -56,7 +57,7 @@ const handleRegisterUser = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "user created successfully",
-      user,
+      data: user,
     });
   } catch (error) {
     next(error);
@@ -137,7 +138,7 @@ const handleLoginUser = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "logged in successfully",
-      user: userWithoutPassword,
+      data: userWithoutPassword,
     });
   } catch (error) {
     next(error);
@@ -165,7 +166,7 @@ const handleGetUsers = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "users retrieved successfully",
-      users,
+      data: users,
     });
   } catch (error) {
     next(error);
@@ -190,7 +191,7 @@ const handleGetUserById = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "user found",
-      user: userWithoutPassword,
+      data: userWithoutPassword,
     });
   } catch (error) {
     next(error);
@@ -248,7 +249,7 @@ const handleEditUserRole = async (req, res, next) => {
     res.status(201).send({
       success: true,
       message: "user role updated",
-      user: userWithoutPassword,
+      data: userWithoutPassword,
     });
   } catch (error) {
     next(error);
@@ -334,6 +335,62 @@ const handleDeleteUserById = async (req, res, next) => {
   }
 };
 
+// handle logout
+const handleLogoutUser = async (req, res, next) => {
+  try {
+    // console.log(req.user);
+    if (!req.user) {
+      throw createError.Unauthorized("User is not authenticated");
+    }
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+
+    //success response
+    res.status(200).send({
+      success: true,
+      message: "user logged out successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// handle refresh token
+const handleRefreshToken = async (req, res, next) => {
+  try {
+    const oldRefreshToken = req.cookies.refreshToken;
+    // console.log(oldRefreshToken);
+    //verify refresh token
+    const decodedToken = jwt.verify(oldRefreshToken, refreshTokenSecret);
+    // console.log(decodedToken.user);
+    if (!decodedToken) {
+      throw createError(401, "Invalid refresh token. Please Login again");
+    }
+
+    // if token validation success generate new access token
+    const accessToken = await createJWT(
+      { user: decodedToken.user },
+      accessTokenSecret,
+      "1m"
+    );
+    res.cookie("accessToken", accessToken, {
+      maxAge: 60 * 1000, // 1 minute in milliseconds
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    // Update req.user with the new decoded user information
+    req.user = decodedToken.user;
+    //success response
+    res.status(200).send({
+      success: true,
+      message: "new access token generate successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   handleRegisterUser,
   handleLoginUser,
@@ -342,4 +399,6 @@ export {
   handleEditUserRole,
   handleChangePassword,
   handleDeleteUserById,
+  handleLogoutUser,
+  handleRefreshToken,
 };
