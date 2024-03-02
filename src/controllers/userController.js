@@ -121,21 +121,17 @@ const handleLoginUser = async (req, res, next) => {
     res.cookie("accessToken", accessToken, {
       maxAge: 60 * 1000, // 1 minute in milliseconds
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
     });
 
     const refreshToken = await createJWT({ user }, refreshTokenSecret, "7d");
     res.cookie("refreshToken", refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
     });
 
     const userWithoutPassword = { ...user, password: undefined };
 
-    res.status(200).send({
+    res.status(200).json({
       success: true,
       message: "logged in successfully",
       data: userWithoutPassword,
@@ -376,8 +372,6 @@ const handleRefreshToken = async (req, res, next) => {
     res.cookie("accessToken", accessToken, {
       maxAge: 60 * 1000, // 1 minute in milliseconds
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
     });
     // Update req.user with the new decoded user information
     req.user = decodedToken.user;

@@ -88,7 +88,7 @@ const handleGetMembers = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "members retrieved successfully",
-      members,
+      data: members,
       pagination: {
         totalPages: Math.ceil(count / limit),
         currentPage: page,
@@ -129,48 +129,106 @@ const handleGetSingleMemberByMobile = async (req, res, next) => {
 
 const handleEditInformationByMobile = async (req, res, next) => {
   const { mobile } = req.params;
-  const updatedData = req.body;
+  const { name, mobileNumber, discountValue } = req.body;
 
   try {
-    if (mobile.length !== 11) {
-      throw createError(400, "mobile number should be 11 characters");
-    }
-
     if (!validator.isMobilePhone(mobile, "bn-BD")) {
       throw createError(400, "invalid Bangladeshi mobile number");
     }
 
-    const existingMember = await memberCollection.findOne({ mobile });
+    const existingMember = await memberCollection.findOne({ mobile: mobile });
+
     if (!existingMember) {
       throw createError(404, "member not found");
     }
 
-    if (Object.keys(updatedData).length === 0) {
-      throw createError(400, "no fields provided for update");
-    }
+    const trimmedName = name?.toLowerCase().trim().replace(/\s+/g, " ");
 
-    if (updatedData.mobile && updatedData.mobile !== mobile) {
-      throw createError(
-        400,
-        "mobile cannot be changed. already exists same mobile"
-      );
-    }
-
-    const updatedMember = await memberCollection.updateOne(
-      { mobile },
-      {
-        $set: {
-          ...updatedData,
-          discountValue: parseInt(updatedData.discountValue),
-          updatedAt: new Date(),
+    if (
+      trimmedName &&
+      trimmedName?.length !== 0 &&
+      trimmedName !== existingMember?.name
+    ) {
+      const update = await memberCollection.findOneAndUpdate(
+        { mobile: mobile },
+        {
+          $set: {
+            name: trimmedName,
+            updatedAt: new Date(),
+          },
         },
-      }
-    );
-
-    if (updatedMember.modifiedCount === 1) {
+        { returnDocument: "after" }
+      );
       res.status(200).send({
         success: true,
-        message: "Member information updated successfully",
+        message: "name changes successfully",
+        data: update,
+      });
+    }
+
+    if (mobileNumber && mobileNumber !== existingMember?.mobile) {
+      if (!validator.isMobilePhone(mobileNumber, "bn-BD")) {
+        throw createError(400, "invalid bangladeshi mobile number");
+      }
+
+      const exists = await memberCollection.findOne({ mobile: mobileNumber });
+      if (exists) {
+        throw createError(400, "this mobile number is already in use");
+      }
+
+      const updatedNumber = await memberCollection.findOneAndUpdate(
+        { mobile: mobile },
+        {
+          $set: {
+            mobile: mobileNumber,
+            updatedAt: new Date(),
+          },
+        },
+        {
+          returnDocument: "after",
+        }
+      );
+
+      res.status(200).send({
+        success: true,
+        message: "mobile number changed successfully",
+        data: updatedNumber,
+      });
+    }
+
+    if (discountValue && isNaN(parseFloat(discountValue))) {
+      throw createError(400, "discount value should be number");
+    }
+
+    const parsedDiscountValue = discountValue && parseFloat(discountValue);
+
+    if (
+      parsedDiscountValue &&
+      parsedDiscountValue !== existingMember?.discountValue
+    ) {
+      if (parsedDiscountValue >= 100) {
+        throw createError(400, "discount value can't be 100% or more");
+      }
+
+      const updatedDiscountValue = await memberCollection.findOneAndUpdate(
+        {
+          mobile: mobile,
+        },
+        {
+          $set: {
+            discountValue: parsedDiscountValue,
+            updatedAt: new Date(),
+          },
+        },
+        {
+          returnDocument: "after",
+        }
+      );
+
+      res.status(200).send({
+        success: true,
+        message: "member's discount value updated",
+        data: updatedDiscountValue,
       });
     } else {
       res.status(200).send({

@@ -5,12 +5,13 @@ import {
   handleGetStaffs,
   handleStaffDelete,
 } from "../controllers/staffController.js";
+import { isLoggedIn } from "../middlewares/auth.js";
 
 const staffRouter = express.Router();
 
-staffRouter.post("/create", handleCreatedStaff);
+staffRouter.post("/create", isLoggedIn, handleCreatedStaff);
 staffRouter.get("/staffs", handleGetStaffs);
 staffRouter.get("/:id", handleGetSingleStaffById);
-staffRouter.delete("/delete/:id", handleStaffDelete);
+staffRouter.delete("/delete/:id", isLoggedIn, handleStaffDelete);
 
 export default staffRouter;

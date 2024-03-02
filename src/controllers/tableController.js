@@ -11,7 +11,7 @@ const handleCreateTable = async (_, res, next) => {
     res.status(200).send({
       success: true,
       message: "table created successfully",
-      table: newTable,
+      data: newTable,
     });
   } catch (error) {
     next(error);
@@ -27,7 +27,7 @@ const handleGetTables = async (_, res, next) => {
     res.status(200).send({
       success: true,
       message: "all tables retrieved successfully",
-      tables,
+      data: tables,
     });
   } catch (error) {
     next(error);
@@ -49,7 +49,7 @@ const handleGetSingleTableById = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "table retrieved successfully",
-      table: exists,
+      data: exists,
     });
   } catch (error) {
     next(error);
@@ -71,7 +71,7 @@ const handleGetSingleTableByName = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "table retrieved successfully",
-      table: exists,
+      data: exists,
     });
   } catch (error) {
     next(error);
@@ -129,7 +129,7 @@ const handleEditTableName = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "table name edited successfully",
-      table: updatedTable,
+      data: updatedTable,
     });
   } catch (error) {
     next(error);

@@ -1,5 +1,5 @@
 import express from "express";
-import { isLoggedIn } from "../middlewares/auth.js";
+import { isAdminOrChairman, isLoggedIn } from "../middlewares/auth.js";
 import {
   handleCreateMember,
   handleDeleteMemberByMobile,
@@ -11,12 +11,22 @@ import {
 
 const memberRouter = express.Router();
 
-memberRouter.post("/create", handleCreateMember);
+memberRouter.post("/create", isLoggedIn, handleCreateMember);
 memberRouter.get("/members", handleGetMembers);
 memberRouter.get("/:mobile", handleGetSingleMemberByMobile);
-memberRouter.patch("/edit/information/:mobile", handleEditInformationByMobile);
+memberRouter.patch(
+  "/edit/information/:mobile",
+  isLoggedIn,
+  isAdminOrChairman,
+  handleEditInformationByMobile
+);
 // mobile, discount, total_bill, invoice need this information
 memberRouter.patch("/update/:mobile", handleUpdateMemberData);
-memberRouter.delete("/delete/:mobile", handleDeleteMemberByMobile);
+memberRouter.delete(
+  "/delete/:mobile",
+  isLoggedIn,
+  isAdminOrChairman,
+  handleDeleteMemberByMobile
+);
 
 export default memberRouter;

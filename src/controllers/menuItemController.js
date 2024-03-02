@@ -73,7 +73,7 @@ const handleCreateMenuItem = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "menu item created successfully",
-      menuItem: newMenuItem,
+      data: newMenuItem,
     });
   } catch (error) {
     next(error);
@@ -89,7 +89,7 @@ const handleGetMenuItems = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "menu items retrieved successfully",
-      menuItems,
+      data: menuItems,
     });
   } catch (error) {
     next(error);
@@ -112,7 +112,7 @@ const handleGetMenuItemById = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "item retrieved",
-      menuItem: existingItem,
+      data: existingItem,
     });
   } catch (error) {
     next(error);
@@ -121,55 +121,107 @@ const handleGetMenuItemById = async (req, res, next) => {
 
 const handleEditMenuItem = async (req, res, next) => {
   const { id } = req.params;
-  const updatedItem = req.body;
+  const { item_name, item_price, discount } = req.body;
   try {
     if (!ObjectId.isValid(id)) {
       throw createError(400, "invalid id");
     }
 
+    //check item exists or not with this id
     const exists = await menuItemCollection.findOne({ _id: new ObjectId(id) });
+
     if (!exists) {
       return next(createError(400, "item not found"));
     }
 
-    const trimmedItemName = updatedItem?.item_name
-      ? updatedItem.item_name.toLowerCase().trim().replace(/\s+/g, " ")
-      : exists?.item_name;
+    // trimmed item input name
+    const trimmedItemName = item_name
+      ?.toLowerCase()
+      .trim()
+      .replace(/\s+/g, " ");
 
-    if (updatedItem.item_name) {
+    // if name same as db don't enter if block
+    if (
+      item_name &&
+      item_name?.length !== 0 &&
+      trimmedItemName !== exists?.item_name
+    ) {
       const exists = await menuItemCollection.findOne({
         item_name: trimmedItemName,
       });
       if (exists) {
-        throw createError(400, "item name already exists");
+        throw createError(400, "item name already exist");
       }
+
+      const updatedMenuItem = await menuItemCollection.findOneAndUpdate(
+        {
+          _id: new ObjectId(id),
+        },
+        {
+          $set: {
+            item_name: trimmedItemName,
+            updatedAt: new Date(),
+          },
+        },
+        { returnDocument: "after" }
+      );
+
+      res.status(200).send({
+        success: true,
+        message: "menu item name updated successfully",
+        data: updatedMenuItem,
+      });
     }
 
-    const price = updatedItem?.item_price
-      ? updatedItem?.item_price
-      : exists?.item_price;
-
-    if (isNaN(parseFloat(price))) {
+    if (item_price && isNaN(parseFloat(item_price))) {
       throw createError(400, "price should be number");
     }
 
-    const parsedPrice = parseFloat(price);
-
-    await menuItemCollection.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...updatedItem,
-          item_price: parsedPrice,
-          updatedAt: new Date(),
+    const parsedPrice = item_price && parseFloat(item_price);
+    if (parsedPrice && parsedPrice != exists.item_price) {
+      const updatedPrice = await menuItemCollection.findOneAndUpdate(
+        {
+          _id: new ObjectId(id),
         },
-      }
-    );
-
-    res.status(200).send({
-      success: true,
-      message: "item updated",
-    });
+        {
+          $set: {
+            item_price: parsedPrice,
+            updatedAt: new Date(),
+          },
+        },
+        { returnDocument: "after" }
+      );
+      res.status(200).send({
+        success: true,
+        message: "menu item price updated successfully",
+        data: updatedPrice,
+      });
+    }
+    console.log(discount);
+    if (discount != undefined && discount !== exists?.discount) {
+      const updated = await menuItemCollection.findOneAndUpdate(
+        {
+          _id: new ObjectId(id),
+        },
+        {
+          $set: {
+            discount: discount,
+            updatedAt: new Date(),
+          },
+        },
+        { returnDocument: "after" }
+      );
+      res.status(200).send({
+        success: true,
+        message: "item discount value updated",
+        data: updated,
+      });
+    } else {
+      res.status(400).send({
+        success: false,
+        message: "no value updated",
+      });
+    }
   } catch (error) {
     next(error);
   }

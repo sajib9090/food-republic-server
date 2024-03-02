@@ -224,7 +224,7 @@ const handleGetSoldInvoiceByQuery = async (req, res, next) => {
       res.status(200).send({
         success: true,
         message: "invoices and daily totals retrieved successfully",
-        invoices,
+        data: invoices,
         dailySellSummary: dailyTotalsArray,
         minMaxSummary: { maxSellDate, maxSell, minSellDate, minSell },
         staffSellRecord: staffSellRecordArray,

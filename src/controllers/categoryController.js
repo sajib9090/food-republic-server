@@ -28,7 +28,7 @@ const handleCreateCategory = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "category created successfully",
-      newCategory,
+      data: newCategory,
     });
   } catch (error) {
     next(error);
@@ -44,7 +44,7 @@ const handleGetCategories = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "retrieved categories",
-      categories,
+      data: categories,
     });
   } catch (error) {
     next(error);

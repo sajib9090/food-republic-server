@@ -10,10 +10,10 @@ import { isLoggedIn } from "../middlewares/auth.js";
 
 const menuItemRouter = express.Router();
 
-menuItemRouter.post("/create", handleCreateMenuItem);
+menuItemRouter.post("/create", isLoggedIn, handleCreateMenuItem);
 menuItemRouter.get("/menu-items", handleGetMenuItems);
 menuItemRouter.get("/:id", handleGetMenuItemById);
-menuItemRouter.patch("/edit/:id", handleEditMenuItem);
-menuItemRouter.delete("/delete/:id", handleDeleteMenuItem);
+menuItemRouter.patch("/edit/:id", isLoggedIn, handleEditMenuItem);
+menuItemRouter.delete("/delete/:id", isLoggedIn, handleDeleteMenuItem);
 
 export default menuItemRouter;

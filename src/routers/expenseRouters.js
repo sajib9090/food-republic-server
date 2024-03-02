@@ -8,7 +8,7 @@ import {
 
 const expenseRouter = express.Router();
 
-expenseRouter.post("/create", handleCreateExpense);
+expenseRouter.post("/create", isLoggedIn, handleCreateExpense);
 expenseRouter.delete("/delete/:id", handleDeleteExpenseById);
 expenseRouter.get("/find", handleGetExpensesByQuery);
 

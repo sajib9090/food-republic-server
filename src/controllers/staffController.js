@@ -39,7 +39,7 @@ const handleCreatedStaff = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "staff created successfully",
-      staff: newStaff,
+      data: newStaff,
     });
   } catch (error) {
     next(error);
@@ -52,7 +52,7 @@ const handleGetStaffs = async (_, res, next) => {
     res.status(200).send({
       success: true,
       message: "all staffs retrieved successfully",
-      staffs: allStaffs,
+      data: allStaffs,
     });
   } catch (error) {
     next(error);
@@ -74,7 +74,7 @@ const handleGetSingleStaffById = async (req, res, next) => {
     res.status(200).send({
       success: true,
       message: "staff retrieved successfully",
-      staff: exists,
+      data: exists,
     });
   } catch (error) {
     next(error);
