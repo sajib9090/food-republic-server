@@ -131,7 +131,7 @@ const handleLoginUser = async (req, res, next) => {
 
     const userWithoutPassword = { ...user, password: undefined };
 
-    res.status(200).json({
+    res.status(200).send({
       success: true,
       message: "logged in successfully",
       data: userWithoutPassword,
