@@ -28,7 +28,7 @@ const limiter = rateLimit({
 //middleware
 app.use(
   cors({
-    origin: "*",
+    origin: "https://foodrepublic111.web.app",
     credentials: true,
     optionsSuccessStatus: 200,
   })
